@@ -1,0 +1,5 @@
+# O programa em si não tem dependências externas (usa só a biblioteca
+# padrão do Python: csv, tkinter, xml, re, os, unicodedata).
+#
+# O pacote abaixo só é necessário se você for gerar o executável (.exe):
+pyinstaller

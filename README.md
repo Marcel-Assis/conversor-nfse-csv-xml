@@ -1,62 +1,67 @@
-# conversor-nfse-csv-xmlCONVERSOR NFS-e — CSV para XML
+# Conversor NFS-e — CSV para XML
 
-================================
+Programa em Python com interface gráfica (Tkinter) que converte o CSV de
+exportação em lote de NFS-e da Prefeitura de São Paulo em arquivos XML
+individuais, um por nota fiscal, no layout oficial da prefeitura.
 
-## O QUE ESSE PROGRAMA FAZ
+## O que faz
 
-Lê o CSV exportado em lote da Prefeitura de São Paulo (NFS-e) e gera um
-arquivo .xml separado para cada nota fiscal, no layout oficial da
-Prefeitura (o mesmo layout do arquivo de exemplo que você me passou).
+- Lê o CSV exportado em lote pela Prefeitura de São Paulo
+- Gera um `.xml` separado para cada nota fiscal, nomeado como
+  `{CNPJ do prestador}-{Inscrição Municipal}-{Número da NFS-e}-nfse.xml`
+- Converte automaticamente os formatos de campo (datas, valores
+  monetários, CPF/CNPJ, cidade → código IBGE, etc.)
+- Valida o arquivo antes de processar (colunas esperadas, contagem de
+  campos por linha) e valida cada campo individualmente
+- Se uma nota tiver algum problema, ela é **pulada e reportada no log**
+  — o restante do arquivo continua sendo processado normalmente
 
-Cada arquivo é salvo como:
-{CNPJ do prestador}-{Inscrição Municipal}-{Número da NFS-e}-nfse.xml
+## Como usar
 
-## VALIDAÇÕES E TRATAMENTO DE ERRO
+### Direto com Python
 
-- Confere se o CSV tem as colunas esperadas antes de processar qualquer
-  linha (aponta quais estão faltando, se for o caso).
-- Confere linha a linha se o número de colunas bate com o cabeçalho —
-  se não bater (ex: um ";" a mais/a menos naquela nota específica), a
-  linha é PULADA e reportada no log, sem travar o restante do arquivo.
-- Cada campo é validado individualmente (data, valor monetário, CPF/CNPJ,
-  cidade) — se um campo vier em formato inesperado, só aquela nota é
-  pulada, com uma mensagem explicando qual campo e por quê.
-- No final, mostra quantas notas foram convertidas com sucesso e quantas
-  tiveram erro, com detalhe de cada erro no log.
+```bash
+python conversor_nfse.py
+```
 
-## CAMPOS COM CONFIANÇA REDUZIDA (revise antes de usar em produção)
+(Não há dependências externas — usa só a biblioteca padrão do Python.)
 
-Estes campos foram implementados por analogia/melhor esforço, porque o
-CSV não tem uma coluna com correspondência 100% clara para eles. O
-programa gera um AVISO no log toda vez que usa um deles — não é erro,
-mas vale conferir os primeiros arquivos gerados manualmente:
+### Gerando um executável Windows (.exe)
 
-- TributacaoNFe: não existe coluna equivalente no CSV. O programa usa
-  sempre o valor fixo "T". Se sua prefeitura/contador souber o
-  significado correto desse campo, me avise.
+```bash
+pip install pyinstaller
+pyinstaller --onefile --windowed --add-data "municipios_ibge.csv;." conversor_nfse.py
+```
 
-- ValorIR / ValorCSLL: mapeados a partir das colunas "IR" e "CSLL" do
-  CSV (que ficam na parte de retenções federais). O formato bateu nos
-  testes, mas eu não tinha um XML de exemplo com esses campos
-  preenchidos pra confirmar 100%.
+O executável final aparece em `dist/conversor_nfse.exe` — é o único
+arquivo necessário para rodar em outro PC Windows, sem precisar instalar
+Python.
 
-- DataFatoGeradorNFe: o CSV só tem a DATA desse campo (sem hora). O
-  programa completa com "T00:00:00". No único exemplo que vi, esse
-  campo tinha a mesma data E hora do DataEmissaoNFe — se isso for
-  importante pro seu caso, me avise que ajusto pra copiar a hora de
-  "Data Hora NFE" em vez de zerar.
+## Estrutura do repositório
 
-- ChaveNotaNacional: NÃO é gerado — essa chave é criada pelo sistema
-  nacional de NFS-e no momento da emissão, não existe no CSV exportado.
-  A tag é omitida do XML gerado. Se o sistema de destino EXIGIR essa
-  tag mesmo que vazia, me avise.
+```
+conversor_nfse.py       # programa principal (lógica + interface gráfica)
+municipios_ibge.csv      # tabela de municípios do Brasil com código IBGE
+                          # (fonte: IBGE, via github.com/kelvins/municipios-brasileiros)
+LEIA-ME.txt              # notas técnicas detalhadas e limitações conhecidas
+```
 
-## CÓDIGO IBGE DAS CIDADES
+## Limitações conhecidas
 
-O arquivo municipios_ibge.csv (bundlado junto) tem os 5.570 municípios
-do Brasil com nome, UF e código IBGE (fonte: IBGE, via repositório
-público github.com/kelvins/municipios-brasileiros). O programa casa o
-nome da cidade do CSV (ignorando acento/maiúsculas) + UF contra essa
-tabela. Se uma cidade não for encontrada (nome digitado diferente do
-IBGE, por exemplo), a nota é pulada com um erro claro apontando qual
-cidade não bateu.
+Alguns campos do XML não têm uma coluna equivalente clara no CSV
+exportado e são preenchidos por convenção/melhor esforço (o programa
+avisa no log sempre que usa um deles):
+
+- `TributacaoNFe` — sem coluna correspondente no CSV, usa valor fixo `"T"`
+- `ValorIR` / `ValorCSLL` — mapeados das colunas de retenções federais,
+  formato validado mas sem exemplo oficial 100% confirmado
+- `DataFatoGeradorNFe` — o CSV só traz a data (sem hora); a hora é
+  preenchida com `00:00:00`
+- `ChaveNotaNacional` — não é gerada (é criada pelo sistema nacional de
+  NFS-e no momento da emissão); a tag é omitida do XML
+
+Ver `LEIA-ME.txt` para mais detalhes.
+
+## Licença
+
+Uso pessoal / livre para adaptar.
