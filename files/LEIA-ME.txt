@@ -1,18 +1,18 @@
-# conversor-nfse-csv-xmlCONVERSOR NFS-e — CSV para XML
-
+CONVERSOR NFS-e — CSV para XML
 ================================
 
-## O QUE ESSE PROGRAMA FAZ
-
+O QUE ESSE PROGRAMA FAZ
+------------------------
 Lê o CSV exportado em lote da Prefeitura de São Paulo (NFS-e) e gera um
 arquivo .xml separado para cada nota fiscal, no layout oficial da
 Prefeitura (o mesmo layout do arquivo de exemplo que você me passou).
 
 Cada arquivo é salvo como:
-{CNPJ do prestador}-{Inscrição Municipal}-{Número da NFS-e}-nfse.xml
+    {CNPJ do prestador}-{Inscrição Municipal}-{Número da NFS-e}-nfse.xml
 
-## VALIDAÇÕES E TRATAMENTO DE ERRO
 
+VALIDAÇÕES E TRATAMENTO DE ERRO
+----------------------------------
 - Confere se o CSV tem as colunas esperadas antes de processar qualquer
   linha (aponta quais estão faltando, se for o caso).
 - Confere linha a linha se o número de colunas bate com o cabeçalho —
@@ -24,8 +24,9 @@ Cada arquivo é salvo como:
 - No final, mostra quantas notas foram convertidas com sucesso e quantas
   tiveram erro, com detalhe de cada erro no log.
 
-## CAMPOS COM CONFIANÇA REDUZIDA (revise antes de usar em produção)
 
+CAMPOS COM CONFIANÇA REDUZIDA (revise antes de usar em produção)
+---------------------------------------------------------------------
 Estes campos foram implementados por analogia/melhor esforço, porque o
 CSV não tem uma coluna com correspondência 100% clara para eles. O
 programa gera um AVISO no log toda vez que usa um deles — não é erro,
@@ -51,8 +52,9 @@ mas vale conferir os primeiros arquivos gerados manualmente:
   A tag é omitida do XML gerado. Se o sistema de destino EXIGIR essa
   tag mesmo que vazia, me avise.
 
-## CÓDIGO IBGE DAS CIDADES
 
+CÓDIGO IBGE DAS CIDADES
+--------------------------
 O arquivo municipios_ibge.csv (bundlado junto) tem os 5.570 municípios
 do Brasil com nome, UF e código IBGE (fonte: IBGE, via repositório
 público github.com/kelvins/municipios-brasileiros). O programa casa o
@@ -60,3 +62,19 @@ nome da cidade do CSV (ignorando acento/maiúsculas) + UF contra essa
 tabela. Se uma cidade não for encontrada (nome digitado diferente do
 IBGE, por exemplo), a nota é pulada com um erro claro apontando qual
 cidade não bateu.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Um oferecimento Marcel eh mole kk
